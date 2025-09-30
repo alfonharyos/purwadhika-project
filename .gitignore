@@ -1,0 +1,11 @@
+secrets/
+**/__pycache__/
+.env
+envs/
+.venv/
+logs/
+pgdata/
+.user.yml
+tmp/
+note.txt
+nltk_data/

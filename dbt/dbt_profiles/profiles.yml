@@ -1,0 +1,105 @@
+dbt_alfon_project:
+  target: dev
+  outputs:
+    dev:
+      type: bigquery
+      method: service-account
+      project: purwadika
+      keyfile: /opt/secrets/bigquery-key.json
+      threads: 4
+      dataset: ""
+      location: us
+      priority: interactive
+      job_execution_timeout_seconds: 300
+      job_retries: 1
+
+    us:
+      type: bigquery
+      method: service-account
+      project: purwadika
+      keyfile: /opt/secrets/bigquery-key.json
+      threads: 4
+      dataset: ""
+      location: us                     # Multi-region US
+      priority: interactive
+      job_execution_timeout_seconds: 300
+      job_retries: 1
+
+    us_central1:
+      type: bigquery
+      method: service-account
+      project: purwadika
+      keyfile: /opt/secrets/bigquery-key.json
+      threads: 4
+      dataset: ""
+      location: us-central1            # Region specific
+      priority: interactive
+      job_execution_timeout_seconds: 300
+      job_retries: 1
+
+    # movie_prep:
+    #   type: bigquery
+    #   method: service-account
+    #   project: purwadika
+    #   keyfile: /opt/secrets/bigquery-key.json
+    #   threads: 4
+    #   location: us
+    #   priority: interactive
+    #   schema: jcdeol004_alfon_movie_streaming_preparation
+    #   job_execution_timeout_seconds: 300
+    #   job_retries: 1
+    # movie_model:
+    #   type: bigquery
+    #   method: service-account
+    #   project: purwadika
+    #   keyfile: /opt/secrets/bigquery-key.json
+    #   threads: 4
+    #   location: us
+    #   priority: interactive
+    #   schema: jcdeol004_alfon_movie_streaming_model
+    #   job_execution_timeout_seconds: 300
+    #   job_retries: 1
+    # movie_mart:
+    #   type: bigquery
+    #   method: service-account
+    #   project: purwadika
+    #   keyfile: /opt/secrets/bigquery-key.json
+    #   threads: 4
+    #   location: us
+    #   priority: interactive
+    #   schema: jcdeol004_alfon_movie_streaming_mart
+    #   job_execution_timeout_seconds: 300
+    #   job_retries: 1
+    # taxi_trip_prep:
+    #   type: bigquery
+    #   method: service-account
+    #   project: purwadika
+    #   keyfile: /opt/secrets/bigquery-key.json
+    #   threads: 4
+    #   location: us-central1
+    #   priority: interactive
+    #   schema: jcdeol004_alfon_taxi_trip_preparation
+    #   job_execution_timeout_seconds: 300
+    #   job_retries: 1
+    # taxi_trip_model:
+    #   type: bigquery
+    #   method: service-account
+    #   project: purwadika
+    #   keyfile: /opt/secrets/bigquery-key.json
+    #   threads: 4
+    #   location: us-central1
+    #   priority: interactive
+    #   schema: jcdeol004_alfon_taxi_trip_model
+    #   job_execution_timeout_seconds: 300
+    #   job_retries: 1
+    # taxi_trip_mart:
+    #   type: bigquery
+    #   method: service-account
+    #   project: purwadika
+    #   keyfile: /opt/secrets/bigquery-key.json
+    #   threads: 4
+    #   location: us-central1
+    #   priority: interactive
+    #   schema: jcdeol004_alfon_taxi_trip_mart
+    #   job_execution_timeout_seconds: 300
+    #   job_retries: 1

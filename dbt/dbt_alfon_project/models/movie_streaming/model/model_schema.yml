@@ -1,0 +1,157 @@
+version: 2
+
+sources:
+  - name: jcdeol004_alfon_movie_streaming_preparation
+    schema: jcdeol004_alfon_movie_streaming_preparation
+    tables:
+      - name: prep_users
+      - name: prep_subscriptions
+      - name: prep_movies
+      - name: prep_watch_sessions
+      - name: prep_payments
+      - name: prep_ratings
+
+models:
+  # ------Dimension Tables-------
+  - name: dim_users
+    description: "Dimension user"
+    columns:
+      - name: user_id
+        description: "Primary key user"
+        tests:
+          - not_null
+          - unique
+      - name: name
+        tests: [not_null]
+      - name: email
+        tests:
+          - not_null
+          - unique
+      - name: country
+        tests: [not_null]
+      - name: subscription_id
+        description: "FK to subscription"
+      - name: join_date
+        tests: [not_null]
+
+  - name: dim_subscriptions
+    description: "Dimension subscription plan"
+    columns:
+      - name: subscription_id
+        tests:
+          - not_null
+          - unique
+      - name: plan_type
+        tests: [not_null]
+      - name: start_date
+        tests: [not_null]
+      - name: end_date
+      - name: status
+        tests: [not_null]
+
+  - name: dim_movies
+    description: "Dimension movie"
+    columns:
+      - name: movie_id
+        tests:
+          - not_null
+          - unique
+      - name: title
+        tests: [not_null]
+      - name: genre
+      - name: release_year
+        tests: [not_null]
+      - name: language
+
+  - name: dim_date
+    description: "Date dimension"
+    columns:
+      - name: date_key
+        tests:
+          - not_null
+          - unique
+      - name: day_of_week
+      - name: is_weekend
+      - name: month
+      - name: quarter
+      - name: year
+
+
+  # ------Fact Tables--------
+  - name: fact_user_activity
+    description: "Fact table for user watch sessions"
+    columns:
+      - name: session_id
+        tests:
+          - not_null
+          - unique
+      - name: user_id
+        tests: [not_null]
+      - name: movie_id
+        tests: [not_null]
+      - name: date_key
+        tests: [not_null]
+      - name: watch_duration_minutes
+      - name: completed_flag
+      - name: device_type
+    meta:
+      partition_by: "date_key"
+      cluster_by: ["user_id", "movie_id"]
+
+  - name: fact_movie_popularity
+    description: "Aggregated movie popularity fact"
+    columns:
+      - name: movie_id
+        tests: [not_null]
+      - name: date_key
+        tests: [not_null]
+      - name: total_watch_count
+      - name: unique_viewers
+      - name: avg_watch_duration
+      - name: total_watch_time
+    meta:
+      partition_by: "date_key"
+      cluster_by: ["movie_id"]
+
+  - name: fact_payments
+    description: "Fact table for user payments"
+    columns:
+      - name: payment_id
+        tests:
+          - not_null
+          - unique
+      - name: user_id
+        tests: [not_null]
+      - name: subscription_id
+        tests: [not_null]
+      - name: amount
+        tests: [not_null]
+      - name: payment_date
+        tests: [not_null]
+      - name: date_key
+        tests: [not_null]
+      - name: status
+    meta:
+      partition_by: "date_key"
+      cluster_by: ["user_id", "subscription_id"]
+
+  - name: fact_ratings
+    description: "Fact table for user ratings"
+    columns:
+      - name: rating_id
+        tests:
+          - not_null
+          - unique
+      - name: user_id
+        tests: [not_null]
+      - name: movie_id
+        tests: [not_null]
+      - name: rating_score
+        tests: [not_null]
+      - name: rating_date
+        tests: [not_null]
+      - name: date_key
+        tests: [not_null]
+    meta:
+      partition_by: "date_key"
+      cluster_by: ["movie_id", "user_id"]

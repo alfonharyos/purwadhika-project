@@ -1,0 +1,149 @@
+version: 2
+
+sources:
+  - name: jcdeol004_alfon_movie_streaming_raw
+    schema: jcdeol004_alfon_movie_streaming_raw
+    tables:
+      - name: raw_users
+      - name: raw_subscriptions
+      - name: raw_movies
+      - name: raw_watch_sessions
+      - name: raw_payments
+      - name: raw_ratings
+
+models:
+  - name: prep_users
+    description: "Prepared users table with basic user info and subscription status"
+    columns:
+      - name: user_id
+        description: "Unique identifier for user"
+        tests:
+          - unique
+          - not_null
+      - name: email
+        description: "Unique email of the user"
+        tests:
+          - unique
+          - not_null
+      - name: subscription_status
+        description: "Active/inactive user subscription status"
+        tests:
+          - not_null
+
+  - name: prep_subscriptions
+    description: "Prepared subscriptions table with plan details"
+    columns:
+      - name: subscription_id
+        description: "Unique subscription identifier"
+        tests:
+          - unique
+          - not_null
+      - name: user_id
+        description: "FK to prep_users"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('prep_users')
+              field: user_id
+      - name: plan_type
+        description: "Subscription plan: Basic, Standard, Premium"
+        tests:
+          - not_null
+
+  - name: prep_movies
+    description: "Prepared movies table with metadata"
+    columns:
+      - name: movie_id
+        description: "Unique movie identifier"
+        tests:
+          - unique
+          - not_null
+      - name: title
+        description: "Movie title"
+        tests:
+          - not_null
+      - name: release_year
+        description: "Release year of the movie"
+        tests:
+          - not_null
+
+  - name: prep_watch_sessions
+    description: "Prepared watch sessions table with session-level data"
+    columns:
+      - name: session_id
+        description: "Unique identifier for each watch session"
+        tests:
+          - unique
+          - not_null
+      - name: user_id
+        description: "FK to prep_users"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('prep_users')
+              field: user_id
+      - name: movie_id
+        description: "FK to prep_movies"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('prep_movies')
+              field: movie_id
+      - name: start_time
+        description: "Start time of the watch session"
+        tests:
+          - not_null
+
+  - name: prep_payments
+    description: "Prepared payments table for subscription transactions"
+    columns:
+      - name: payment_id
+        description: "Unique payment identifier"
+        tests:
+          - unique
+          - not_null
+      - name: user_id
+        description: "FK to prep_users"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('prep_users')
+              field: user_id
+      - name: subscription_id
+        description: "FK to prep_subscriptions"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('prep_subscriptions')
+              field: subscription_id
+      - name: amount
+        description: "Payment amount"
+        tests:
+          - not_null
+
+  - name: prep_ratings
+    description: "Prepared ratings table with user reviews"
+    columns:
+      - name: rating_id
+        description: "Unique identifier for rating"
+        tests:
+          - unique
+          - not_null
+      - name: user_id
+        description: "FK to prep_users"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('prep_users')
+              field: user_id
+      - name: movie_id
+        description: "FK to prep_movies"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('prep_movies')
+              field: movie_id
+      - name: rating_score
+        description: "Rating score between 1 and 5"
+        tests:
+          - not_null

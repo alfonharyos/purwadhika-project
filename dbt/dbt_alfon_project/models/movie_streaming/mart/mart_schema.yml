@@ -1,0 +1,125 @@
+version: 2
+
+sources:
+  - name: jcdeol004_alfon_movie_streaming_model
+    schema: jcdeol004_alfon_movie_streaming_model
+    tables:
+      - name: fact_payments
+      - name: fact_ratings
+      - name: fact_movie_popularity
+      - name: fact_user_activity
+
+models:
+  - name: mart_movie_popularity_monthly
+    description: "Monthly aggregated movie popularity mart, incremental merge, full history"
+    tags: ['mart']
+    columns:
+      - name: movie_id
+        description: "Unique movie identifier"
+        tests:
+          - not_null
+      - name: month_key
+        description: "Truncated date to month level (YYYY-MM-DD)"
+        tests:
+          - not_null
+      - name: total_watch_count
+        description: "Total number of watch sessions for this movie in the month"
+      - name: unique_viewers
+        description: "Number of unique users who watched the movie"
+      - name: avg_watch_duration
+        description: "Average watch duration per session in minutes"
+      - name: total_watch_time
+        description: "Total watch time in minutes for all sessions"
+      - name: movie_month_key
+        description: "Unique key per movie per month, format: movieid_YYYYMM"
+        tests:
+          - not_null
+          - unique
+
+  - name: mart_movie_rating_monthly
+    description: "Monthly aggregated movie rating mart, incremental merge, full history"
+    tags: ['mart']
+    columns:
+      - name: movie_id
+        description: "Unique movie identifier"
+        tests:
+          - not_null
+      - name: month_key
+        description: "Truncated date to month level (YYYY-MM-DD)"
+        tests:
+          - not_null
+      - name: avg_rating
+        description: "Average rating score for the movie in the month"
+      - name: total_ratings
+        description: "Total number of ratings submitted in the month"
+      - name: unique_raters
+        description: "Number of unique users who rated the movie"
+      - name: movie_month_key
+        description: "Unique key per movie per month, format: movieid_YYYYMM"
+        tests:
+          - not_null
+          - unique
+
+  - name: mart_user_activity_monthly
+    description: "Monthly aggregated user activity mart, incremental merge, full history"
+    tags: ['mart']
+    columns:
+      - name: user_id
+        description: "Unique user identifier"
+        tests:
+          - not_null
+      - name: month_key
+        description: "Truncated date to month level (YYYY-MM-DD)"
+        tests:
+          - not_null
+      - name: total_watch_time_minutes
+        description: "Total watch duration for the user in minutes"
+      - name: total_sessions
+        description: "Total watch sessions for the user in the month"
+      - name: avg_watch_duration
+        description: "Average watch duration per session for the user"
+      - name: completed_sessions
+        description: "Number of sessions that reached completion criteria"
+      - name: user_month_key
+        description: "Unique key per user per month, format: userid_YYYYMM"
+        tests:
+          - not_null
+          - unique
+
+  - name: mart_subscription_revenue_monthly
+    description: "Monthly aggregated subscription revenue mart, incremental merge, full history"
+    tags: ['mart']
+    columns:
+      - name: subscription_id
+        description: "Unique subscription identifier"
+        tests:
+          - not_null
+      - name: month_key
+        description: "Truncated date to month level (YYYY-MM-DD)"
+        tests:
+          - not_null
+      - name: total_amount
+        description: "Total amount collected for the subscription in the month"
+      - name: total_payments
+        description: "Total number of payments in the month"
+      - name: status_completed
+        description: "Number of payments with status 'completed'"
+      - name: status_pending
+        description: "Number of payments with status 'pending'"
+      - name: status_failed
+        description: "Number of payments with status 'failed'"
+      - name: total_active_users
+        description: "Total active users in the month"
+      - name: new_users
+        description: "Number of new users in the month"
+      - name: churned_users
+        description: "Number of users who canceled or stopped subscription in the month"
+      - name: subscription_month_key
+        description: "Unique key per subscription per month, format: subscriptionid_YYYYMM"
+        tests:
+          - not_null
+          - unique
+      - name: run_date_bq
+        description: "Date when the data was loaded into BigQuery"
+        tests:
+          - not_null

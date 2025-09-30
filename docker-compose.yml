@@ -1,0 +1,162 @@
+services:
+  postgres:
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile.postgresql
+    container_name: postgres
+    env_file:
+      - .env
+    ports:
+      - "${POSTGRES_PORT}:5432"
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data
+    networks:
+      - airflow_net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  adminer:
+    image: adminer:4
+    ports:
+      - "8081:8080"
+    networks:
+      - airflow_net
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  selenium:
+    image: seleniarm/standalone-chromium:latest
+    shm_size: 2g
+    ports:
+      - 4444:4444
+    networks:
+      - airflow_net
+    restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SE_NODE_SESSION_TIMEOUT: 600
+      SE_NODE_MAX_SESSIONS: 1
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:4444/wd/hub/status"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  airflow-init:
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile.airflow
+    image: custom-airflow:2.7.3
+    env_file: .env
+    environment:
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://${AIRFLOW_DB_USER}:${AIRFLOW_DB_PASSWORD}@postgres:5432/${AIRFLOW_DB}
+    entrypoint: /bin/bash
+    command: /opt/scripts/docker-entrypoint-init/airflow_init/airflow_init.sh
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ./logs/airflow:/opt/airflow/logs
+      - ./plugins:/opt/airflow/plugins
+      - ./helpers:/opt/helpers
+      - ./scripts:/opt/scripts
+      - ./schemas:/opt/schemas
+      - ./data:/opt/data
+      - ./secrets:/opt/secrets
+      - ./dbt:/opt/dbt
+      - ./dbt/target:/opt/dbt/target
+      - ./nltk_data:/opt/airflow/nltk_data
+    networks:
+      - airflow_net
+    depends_on:
+      selenium:
+        condition: service_healthy
+
+  airflow-webserver:
+    image: custom-airflow:2.7.3
+    env_file: 
+      - .env
+      - ./envs/.env.movie_streaming
+      - ./envs/.env.sender
+    environment:
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://${AIRFLOW_DB_USER}:${AIRFLOW_DB_PASSWORD}@postgres:5432/${AIRFLOW_DB}
+      AIRFLOW_CONN_MOVIE_DB: postgresql+psycopg2://${MOVIE_DB_USER}:${MOVIE_DB_PASSWORD}@postgres:5432/${MOVIE_DB}
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ./logs/airflow:/opt/airflow/logs
+      - ./plugins:/opt/airflow/plugins
+      - ./helpers:/opt/helpers
+      - ./scripts:/opt/scripts
+      - ./schemas:/opt/schemas
+      - ./data:/opt/data
+      - ./secrets:/opt/secrets
+      - ./dbt:/opt/dbt
+      - ./dbt/target:/opt/dbt/target
+      - ./nltk_data:/opt/airflow/nltk_data
+    ports:
+      - "8080:8080"
+    command: webserver
+    networks:
+      - airflow_net
+    depends_on:
+      airflow-init:
+        condition: service_completed_successfully
+      selenium:
+        condition: service_healthy
+
+  airflow-scheduler:
+    image: custom-airflow:2.7.3
+    env_file: 
+      - .env
+      - ./envs/.env.movie_streaming
+      - ./envs/.env.sender
+    environment:
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://${AIRFLOW_DB_USER}:${AIRFLOW_DB_PASSWORD}@postgres:5432/${AIRFLOW_DB}
+      AIRFLOW_CONN_MOVIE_DB: postgresql+psycopg2://${MOVIE_DB_USER}:${MOVIE_DB_PASSWORD}@postgres:5432/${MOVIE_DB}
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ./logs/airflow:/opt/airflow/logs
+      - ./plugins:/opt/airflow/plugins
+      - ./helpers:/opt/helpers
+      - ./scripts:/opt/scripts
+      - ./schemas:/opt/schemas
+      - ./data:/opt/data
+      - ./secrets:/opt/secrets
+      - ./dbt:/opt/dbt
+      - ./dbt/target:/opt/dbt/target
+      - ./nltk_data:/opt/airflow/nltk_data
+    command: scheduler
+    networks:
+      - airflow_net
+    depends_on:
+      airflow-init:
+        condition: service_completed_successfully
+      selenium:
+        condition: service_healthy
+
+  publisher:
+    profiles: ["publisher"]
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile.publisher
+    image: movie-streaming-publisher
+    container_name: movie-streaming-publisher
+    env_file:
+      - .env
+      - ./envs/.env.movie_streaming
+    environment:
+      PYTHONPATH: /app
+      GOOGLE_APPLICATION_CREDENTIALS: /app/secrets/bigquery-key.json
+    volumes:
+      - ./helpers:/app/helpers
+      - ./scripts:/app/scripts
+      - ./schemas:/app/schemas
+      - ./secrets:/app/secrets
+
+networks:
+  airflow_net:
+    driver: bridge

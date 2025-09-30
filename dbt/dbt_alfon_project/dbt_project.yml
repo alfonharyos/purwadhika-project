@@ -1,0 +1,43 @@
+name: dbt_alfon_project
+version: 1.0.0
+config-version: 2
+
+profile: dbt_alfon_project
+
+# paths
+model-paths: ["models"]
+macro-paths: ["macros"]
+test-paths: ["tests"]
+analysis-paths: ["analyses"]
+seed-paths: ["seeds"]
+snapshot-paths: ["snapshots"]
+
+# build outputs
+target-path: "target"
+log-path: "logs"
+packages-install-path: "dbt_packages"
+
+# default materialization
+models:
+  dbt_alfon_project:
+    movie_streaming:
+      preparation:
+        +schema: jcdeol004_alfon_movie_streaming_preparation
+        +materialized: table
+      model: 
+        +schema: jcdeol004_alfon_movie_streaming_model
+        +materialized: table
+      mart:
+        +schema: jcdeol004_alfon_movie_streaming_mart
+        +materialized: table
+        
+    taxi_trip:
+      preparation:
+        +schema: jcdeol004_alfon_taxi_trip_preparation
+        +materialized: table
+      model:
+        +schema: jcdeol004_alfon_taxi_trip_model
+        +materialized: table
+      mart:
+        +schema: jcdeol004_alfon_taxi_trip_mart
+        +materialized: table

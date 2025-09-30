@@ -1,0 +1,15 @@
+FROM python:3.11
+
+WORKDIR /app
+
+# Install dependencies
+RUN pip install google-cloud-bigquery==3.11.4 \
+    google-cloud-storage==2.10.0 \
+    google-cloud-core==2.3.3 \
+    google-cloud-pubsub==2.15.0 \
+    python-dotenv==1.0.0 \
+    pandas==2.0.3 \
+    faker==18.9.0 \
+    apache-beam[gcp]==2.48.0
+
+CMD ["python", "./scripts/movie_streaming/publish_message_video_playback_events_movie_streaming.py"]

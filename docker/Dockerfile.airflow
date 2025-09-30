@@ -1,0 +1,37 @@
+FROM apache/airflow:2.7.3-python3.11
+
+USER root
+
+# install system deps + ca-certificates
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends \
+       ca-certificates \
+       gcc \
+       libpq-dev \
+       python3-dev \
+ && update-ca-certificates \
+ && rm -rf /var/lib/apt/lists/*
+
+# create nltk dir and give ownership to airflow
+RUN mkdir -p /opt/airflow/nltk_data && chown -R airflow: /opt/airflow/nltk_data
+
+# copy files
+COPY ./scripts /opt/scripts
+COPY ./dags /opt/airflow/dags
+
+# Set execute permission untuk init script
+RUN chmod +x /opt/scripts/docker-entrypoint-init/airflow_init/airflow_init.sh
+RUN sed -i 's/\r$//' /opt/scripts/docker-entrypoint-init/airflow_init/airflow_init.sh
+
+USER airflow
+
+COPY requirements.txt /requirements.txt
+RUN pip install --no-cache-dir -r /requirements.txt
+
+# Download nltk corpora into a known path
+RUN python -m nltk.downloader -d /opt/airflow/nltk_data punkt stopwords punkt_tab
+
+# Set env var for NLTK
+ENV NLTK_DATA=/opt/airflow/nltk_data
+
+USER airflow

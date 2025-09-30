@@ -1,0 +1,25 @@
+
+  
+    
+
+    create or replace table `purwadika`.`jcdeol004_alfon_taxi_trip_model`.`dim_payment_type`
+      
+    
+    
+
+    OPTIONS()
+    as (
+      
+
+select *
+from (
+    select 0 as payment_type, 'Flex Fare trip' as payment_desc union all
+    select 1, 'Credit card' union all
+    select 2, 'Cash' union all
+    select 3, 'No charge' union all
+    select 4, 'Dispute' union all
+    select 5, 'Unknown' union all
+    select 6, 'Voided trip'
+)
+    );
+  

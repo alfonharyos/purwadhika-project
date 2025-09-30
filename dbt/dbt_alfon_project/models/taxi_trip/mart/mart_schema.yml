@@ -1,0 +1,83 @@
+version: 2
+
+models:
+  - name: mart_taxi_trip_holiday_zone_flow
+    description: "Incremental mart of taxi trip flows (pickup -> dropoff) during weekends/holidays, aggregated by date and hour."
+    columns:
+      - name: trip_date
+        description: "The trip date (only Friday–Sunday included via dim_holiday)"
+        tests:
+          - not_null
+      - name: trip_hour
+        description: "Hour of the trip (0–23) extracted from pickup_datetime"
+        tests:
+          - not_null
+      - name: pickup_zone
+        description: "Pickup taxi zone name (from dim_location)"
+        tests:
+          - not_null
+      - name: dropoff_zone
+        description: "Dropoff taxi zone name (from dim_location)"
+        tests:
+          - not_null
+      - name: total_trip
+        description: "Total number of trips for this date/hour/zone flow"
+        tests:
+          - not_null
+      - name: avg_total_amount
+        description: "Average fare amount per trip in this date/hour/zone flow"
+      - name: total_revenue
+        description: "Total revenue in this date/hour/zone flow"
+      - name: avg_distance
+        description: "Average trip distance in this date/hour/zone flow"
+
+  - name: mart_taxi_trip_holiday_daily
+    description: "Daily aggregated metrics of taxi trips during holidays/weekends"
+    columns:
+      - name: trip_hour
+        description: "Holiday trip hour"
+        tests:
+          - not_null
+      - name: trip_date
+        description: "Holiday trip date"
+        tests:
+          - not_null
+          - unique
+      - name: total_trip
+        description: "Total trips across all zones"
+        tests:
+          - not_null
+      - name: total_revenue
+        description: "Total revenue across all zones"
+      - name: avg_total_amount
+        description: "Average fare across trips"
+      - name: avg_distance
+        description: "Average distance across trips"
+
+  - name: mart_taxi_trip_holiday_summary
+    description: "Monthly summary of taxi trips on weekends (Friday–Sunday), with metrics per holiday type"
+    columns:
+      - name: year
+        description: "Year of the holiday month"
+        tests:
+          - not_null
+      - name: month
+        description: "Month of the holiday"
+        tests:
+          - not_null
+      - name: holiday_type
+        description: "Type of weekend day (Friday, Saturday, Sunday)"
+        tests:
+          - not_null
+      - name: total_trip
+        description: "Total number of trips in that month and holiday type"
+        tests:
+          - not_null
+      - name: total_revenue
+        description: "Total revenue in that month and holiday type"
+      - name: avg_total_amount
+        description: "Average spending per trip (weighted)"
+      - name: avg_distance
+        description: "Average distance per trip (weighted)"
+      - name: holiday_days
+        description: "Number of Friday/Saturday/Sunday days in the month"

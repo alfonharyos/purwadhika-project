@@ -1,0 +1,70 @@
+version: 2
+
+sources:
+  - name: taxi_trip_raw
+    schema: jcdeol004_alfon_taxi_trip_raw
+    tables:
+      - name: raw_yellow_taxi_trip
+        description: "Raw Yellow Taxi trip data loaded from NYC TLC source"
+        columns:
+          - name: pulocationid
+          - name: dolocationid
+      - name: raw_green_taxi_trip
+        description: "Raw Green Taxi trip data loaded from NYC TLC source"
+        columns:
+          - name: pulocationid
+          - name: dolocationid
+
+models:
+  - name: prep_taxi_trip
+    description: "Prepared taxi trip data combining Yellow and Green trips with cleaning and deduplication"
+    columns:
+      - name: md5_key
+        description: "Unique hash key generated from key trip fields for deduplication"
+        tests:
+          - not_null
+          - unique
+
+      - name: taxi_type
+        description: "Taxi type: Yellow or Green"
+
+      - name: vendorid
+        description: "Identifier for the vendor associated with the trip"
+
+      - name: pickup_datetime
+        description: "Timestamp of when the trip started"
+        tests:
+          - not_null
+
+      - name: dropoff_datetime
+        description: "Timestamp of when the trip ended"
+        tests:
+          - not_null
+
+      - name: pulocationid
+        description: "TLC Taxi Zone ID where the passenger was picked up"
+        tests:
+          - not_null
+
+      - name: dolocationid
+        description: "TLC Taxi Zone ID where the passenger was dropped off"
+        tests:
+          - not_null
+
+      - name: payment_type
+        description: "Numeric code for how the passenger paid"
+
+      - name: passenger_count
+        description: "Number of passengers on the trip"
+
+      - name: fare_amount
+        description: "Base fare for the trip"
+
+      - name: tip_amount
+        description: "Tip paid by passenger"
+
+      - name: total_amount
+        description: "Total amount charged for the trip"
+
+      - name: trip_distance
+        description: "Distance of the trip in miles"
