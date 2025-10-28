@@ -31,7 +31,7 @@ WATCH_SESSIONS = [
 
 EVENT_TYPES = ['start', 'buffer', 'error', 'stop']
 # Tambahkan lebih banyak error (biar proporsinya sama kayak kode awal)
-WEIGHTED_EVENT_TYPES = ['start', 'buffer', 'error', 'error', 'error', 'stop']
+WEIGHTED_EVENT_TYPES = ['start', 'buffer', 'error', 'stop']
 
 
 def video_playback_events_generator(n=5):

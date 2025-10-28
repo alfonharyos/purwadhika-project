@@ -1,7 +1,7 @@
 {{ config(
     materialized='incremental',
     incremental_strategy='merge',
-    unique_key=['trip_date', 'pickup_zone', 'dropoff_zone'],
+    unique_key=['trip_date', 'trip_hour', 'pickup_zone', 'dropoff_zone'],
     partition_by={"field": "trip_date", "data_type": "date"},
     cluster_by=["pickup_zone", "dropoff_zone"],
     tags=['mart']

@@ -1,15 +1,27 @@
-
+-- back compat for old kwarg name
   
+  
+        
+            
+                
+                
+            
+                
+                
+            
+                
+                
+            
+                
+                
+            
+        
     
 
-    create or replace table `purwadika`.`jcdeol004_alfon_taxi_trip_mart`.`mart_taxi_trip_holiday_zone_flow`
-      
-    partition by trip_date
-    cluster by pickup_zone, dropoff_zone
+    
 
-    OPTIONS()
-    as (
-      
+    merge into `purwadika`.`jcdeol004_alfon_taxi_trip_mart`.`mart_taxi_trip_holiday_zone_flow` as DBT_INTERNAL_DEST
+        using (
 
 
 with base as (
@@ -47,5 +59,26 @@ select
     current_date("Asia/Jakarta") as run_date_bq
 from base
 group by 1,2,3,4
-    );
-  
+        ) as DBT_INTERNAL_SOURCE
+        on (
+                    DBT_INTERNAL_SOURCE.trip_date = DBT_INTERNAL_DEST.trip_date
+                ) and (
+                    DBT_INTERNAL_SOURCE.trip_hour = DBT_INTERNAL_DEST.trip_hour
+                ) and (
+                    DBT_INTERNAL_SOURCE.pickup_zone = DBT_INTERNAL_DEST.pickup_zone
+                ) and (
+                    DBT_INTERNAL_SOURCE.dropoff_zone = DBT_INTERNAL_DEST.dropoff_zone
+                )
+
+    
+    when matched then update set
+        `trip_date` = DBT_INTERNAL_SOURCE.`trip_date`,`trip_hour` = DBT_INTERNAL_SOURCE.`trip_hour`,`pickup_zone` = DBT_INTERNAL_SOURCE.`pickup_zone`,`dropoff_zone` = DBT_INTERNAL_SOURCE.`dropoff_zone`,`total_trip` = DBT_INTERNAL_SOURCE.`total_trip`,`avg_total_amount` = DBT_INTERNAL_SOURCE.`avg_total_amount`,`total_revenue` = DBT_INTERNAL_SOURCE.`total_revenue`,`avg_distance` = DBT_INTERNAL_SOURCE.`avg_distance`,`run_date_bq` = DBT_INTERNAL_SOURCE.`run_date_bq`
+    
+
+    when not matched then insert
+        (`trip_date`, `trip_hour`, `pickup_zone`, `dropoff_zone`, `total_trip`, `avg_total_amount`, `total_revenue`, `avg_distance`, `run_date_bq`)
+    values
+        (`trip_date`, `trip_hour`, `pickup_zone`, `dropoff_zone`, `total_trip`, `avg_total_amount`, `total_revenue`, `avg_distance`, `run_date_bq`)
+
+
+    

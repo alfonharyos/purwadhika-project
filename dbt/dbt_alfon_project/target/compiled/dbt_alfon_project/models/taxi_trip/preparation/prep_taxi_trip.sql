@@ -20,6 +20,14 @@ with yellow_filtered as (
         trip_distance
     from `purwadika`.`jcdeol004_alfon_taxi_trip_raw`.`raw_yellow_taxi_trip`
     
+        where date(date_trunc(pickup_datetime, month)) >= (
+            select date_sub(
+                coalesce(date(max(date_trunc(pickup_datetime, month))), date('2023-01-01')),
+                interval 2 month
+            )
+            from `purwadika`.`jcdeol004_alfon_taxi_trip_preparation`.`prep_taxi_trip`
+        )
+    
 ),
 
 green_filtered as (
@@ -38,6 +46,14 @@ green_filtered as (
         total_amount,
         trip_distance
     from `purwadika`.`jcdeol004_alfon_taxi_trip_raw`.`raw_green_taxi_trip`
+    
+        where date(date_trunc(pickup_datetime, month)) >= (
+            select date_sub(
+                coalesce(date(max(date_trunc(pickup_datetime, month))), date('2023-01-01')),
+                interval 2 month
+            )
+            from `purwadika`.`jcdeol004_alfon_taxi_trip_preparation`.`prep_taxi_trip`
+        )
     
 ),
 
