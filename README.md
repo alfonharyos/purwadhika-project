@@ -233,12 +233,6 @@ Semua pipeline dilengkapi `Discord notification`
 
 ---
 
-## Common Infrastructure
-- `Airflow` digunakan sebagai pusat orkestrasi (`scheduler & log monitoring`).
-- Folder `helpers/` bersifat shared module, dapat digunakan lintas proyek.
-
----
-
 ## 📘 Individual Project READMEs
 - [🎬 Movie Streaming (Batch)](./documentation/movie_streaming/movie_streaming_analytics.md)
 - ⚡ [Movie Streaming (Streaming)](./documentation/movie_streaming/movie_streaming_playback_monitoring.md)

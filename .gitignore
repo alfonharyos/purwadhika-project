@@ -9,4 +9,3 @@ pgdata/
 tmp/
 note.txt
 nltk_data/
-dbt/dbt_alfon_project/target/
